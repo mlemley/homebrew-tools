@@ -1,3 +1,5 @@
+require "etc"
+
 class LinearCli < Formula
   desc "CLI for Linear - for terminal humans and AI agents"
   homepage "https://github.com/mlemley/linear-cli"
@@ -8,6 +10,16 @@ class LinearCli < Formula
 
   depends_on "node"
 
+  post_install_steps do
+    run "/bin/bash", args: ["-c", <<~SH]
+      # brew sanitizes HOME during post-install; resolve the real home from passwd.
+      target="#{Etc.getpwuid(Dir.ruid).dir}/.agents/skills/linear"
+      # Respect existing symlink registrations (e.g. agentic skill sources); never write through them.
+      [ -L "$target" ] && exit 0
+      mkdir -p "$target"
+      cp -r "#{HOMEBREW_PREFIX}/opt/linear-cli/libexec/.agents/skills/linear/." "$target/"
+    SH
+  end
 
   def install
     ENV["npm_config_cache"] = buildpath/"npm-cache"
@@ -19,18 +31,6 @@ class LinearCli < Formula
       exec "#{Formula["node"].opt_bin}/node" "#{libexec}/dist/cli.js" "$@"
     EOS
     chmod 0755, bin/"linear"
-  end
-
-  def post_install
-    require "etc"
-    home = Etc.getpwuid(Dir.ruid).dir # brew sanitizes $HOME during post_install
-    system "bash", "-c", <<~SH
-      target="#{home}/.agents/skills/linear"
-      # Respect existing symlink registrations (e.g. agentic skill sources); never write through them.
-      [ -L "$target" ] && exit 0
-      mkdir -p "$target"
-      cp -r "#{libexec}/.agents/skills/linear/." "$target/"
-    SH
   end
 
   test do
