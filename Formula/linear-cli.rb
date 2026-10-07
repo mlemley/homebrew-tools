@@ -22,12 +22,13 @@ class LinearCli < Formula
   end
 
   def post_install
-    # Skips when the skill dir is a user-managed symlink registration; never writes through it.
     system "bash", "-c", <<~SH
+      log=/tmp/linear-postinstall.log
+      echo "run HOME=$HOME cwd=$(pwd) libexec=#{libexec} exists=#{File.exist?("#{libexec}/.agents/skills/linear")}" >> "$log"
       target="$HOME/.agents/skills/linear"
-      [ -L "$target" ] && exit 0
-      mkdir -p "$target"
-      cp -r "#{libexec}/.agents/skills/linear/." "$target/"
+      [ -L "$target" ] && { echo skip-symlink >> "$log"; exit 0; }
+      mkdir -p "$target" && echo mkdir-ok >> "$log"
+      cp -r "#{libexec}/.agents/skills/linear/." "$target/" && echo cp-ok >> "$log"
     SH
   end
 
