@@ -8,6 +8,16 @@ class LinearCli < Formula
 
   depends_on "node"
 
+  post_install_steps [
+    { exe: "/bin/bash", args: ["-c", <<~SH] },
+      target="$HOME/.agents/skills/linear"
+      # Respect existing symlink registrations (e.g. agentic skill sources); never write through them.
+      [ -L "$target" ] && exit 0
+      mkdir -p "$target"
+      cp -r "#{HOMEBREW_PREFIX}/opt/linear-cli/libexec/.agents/skills/linear/." "$target/"
+    SH
+  ]
+
   def install
     ENV["npm_config_cache"] = buildpath/"npm-cache"
     system "npm", "ci", "--no-audit", "--no-fund"
@@ -18,12 +28,6 @@ class LinearCli < Formula
       exec "#{Formula["node"].opt_bin}/node" "#{libexec}/dist/cli.js" "$@"
     EOS
     chmod 0755, bin/"linear"
-  end
-
-  def post_install
-    target = File.expand_path("~/.agents/skills/linear")
-    FileUtils.mkdir_p(target)
-    FileUtils.cp_r("#{libexec}/.agents/skills/linear/.", target)
   end
 
   test do
