@@ -13,7 +13,7 @@ class LinearCli < Formula
   post_install_steps do
     run "/bin/bash", args: ["-c", <<~SH]
       # brew sanitizes HOME during post-install; resolve the real home from passwd.
-      target="#{Etc.getpwuid(Dir.ruid).dir}/.agents/skills/linear"
+      target="#{Etc.getpwuid(Process.uid).dir}/.agents/skills/linear"
       # Respect existing symlink registrations (e.g. agentic skill sources); never write through them.
       [ -L "$target" ] && exit 0
       mkdir -p "$target"
