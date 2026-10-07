@@ -8,15 +8,15 @@ class LinearCli < Formula
 
   depends_on "node"
 
-  post_install_steps [
-    { exe: "/bin/bash", args: ["-c", <<~SH] },
+  post_install_steps do
+    run "/bin/bash", args: ["-c", <<~SH]
       target="$HOME/.agents/skills/linear"
       # Respect existing symlink registrations (e.g. agentic skill sources); never write through them.
       [ -L "$target" ] && exit 0
       mkdir -p "$target"
       cp -r "#{HOMEBREW_PREFIX}/opt/linear-cli/libexec/.agents/skills/linear/." "$target/"
     SH
-  ]
+  end
 
   def install
     ENV["npm_config_cache"] = buildpath/"npm-cache"
