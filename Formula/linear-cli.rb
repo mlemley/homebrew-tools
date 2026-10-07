@@ -22,13 +22,14 @@ class LinearCli < Formula
   end
 
   def post_install
+    require "etc"
+    home = Etc.getpwuid(Dir.ruid).dir # brew sanitizes $HOME during post_install
     system "bash", "-c", <<~SH
-      log=/tmp/linear-postinstall.log
-      echo "run HOME=$HOME cwd=$(pwd) libexec=#{libexec} exists=#{File.exist?("#{libexec}/.agents/skills/linear")}" >> "$log"
-      target="$HOME/.agents/skills/linear"
-      [ -L "$target" ] && { echo skip-symlink >> "$log"; exit 0; }
-      mkdir -p "$target" && echo mkdir-ok >> "$log"
-      cp -r "#{libexec}/.agents/skills/linear/." "$target/" && echo cp-ok >> "$log"
+      target="#{home}/.agents/skills/linear"
+      # Respect existing symlink registrations (e.g. agentic skill sources); never write through them.
+      [ -L "$target" ] && exit 0
+      mkdir -p "$target"
+      cp -r "#{libexec}/.agents/skills/linear/." "$target/"
     SH
   end
 
