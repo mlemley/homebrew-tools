@@ -1,8 +1,8 @@
 class OpencodeVariants < Formula
   desc "Per-directory OpenCode model routing via generated direnv configs"
   homepage "https://github.com/mlemley/opencode-variants"
-  url "https://github.com/mlemley/opencode-variants/archive/refs/tags/v0.2.0.tar.gz"
-  sha256 "db04a8ef07043724b3d0f56037c51b2a79a74a144cc391a9ad04a3092afc2e07"
+  url "https://github.com/mlemley/opencode-variants/archive/refs/tags/v0.2.1.tar.gz"
+  sha256 "63624cc71f7381c938ada33060ea98942314be0ac9ec6c63c4705e23b9120ee3"
 
   depends_on "direnv"
   depends_on "node"
